@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GreenBins NYC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g1: #0A4F3C;
+    --g2: #0F6E56;
+    --g3: #1D9E75;
+    --g4: #5DCAA5;
+    --g5: #E1F5EE;
+    --ink: #0D1F1A;
+    --muted: #4A6B5E;
+    --border: #C8E8DC;
+    --white: #FFFFFF;
+    --surface: #F4FBF7;
+    --warn: #E67E22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── NAV ── */
+  .nav { background: var(--g1); padding: 0; position: sticky; top: 0; z-index: 100; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+  .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--white); letter-spacing: 1px; }
+  .nav-logo span { color: var(--g4); }
+  .nav-tabs { display: flex; gap: 2px; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 3px; }
+  .nav-tab { padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); cursor: pointer; transition: all .2s; border: none; background: none; white-space: nowrap; }
+  .nav-tab.active { background: var(--g3); color: var(--white); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 16px; max-width: 540px; margin: 0 auto; animation: fadeUp .3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ── HERO (Services screen) ── */
+  .hero { background: var(--g2); border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .hero::before { content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px; background: rgba(255,255,255,0.05); border-radius:50%; }
+  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--white); letter-spacing: 1px; line-height: 1; }
+  .hero-sub { font-size: 12px; color: var(--g4); margin-top: 4px; }
+
+  /* ── SECTION LABEL ── */
+  .section-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin: 20px 0 10px; }
+
+  /* ── SERVICE CARDS ── */
+  .service-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all .2s; position: relative; }
+  .service-card:active { transform: scale(0.98); }
+  .service-card.selected { border-color: var(--g3); background: var(--g5); }
+  .service-card.selected::after { content:'✓'; position:absolute; top:12px; right:14px; width:24px; height:24px; background:var(--g3); border-radius:50%; color:white; font-size:13px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .service-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .service-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .service-price { font-size: 16px; font-weight: 700; color: var(--g2); }
+  .service-desc { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .service-badge { display: inline-block; font-size: 10px; font-weight: 600; background: var(--g5); color: var(--g2); padding: 2px 8px; border-radius: 20px; margin-top: 6px; }
+
+  /* ── PLAN CARDS ── */
+  .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .plan-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 12px; cursor: pointer; transition: all .2s; text-align: center; }
+  .plan-card:active { transform: scale(0.97); }
+  .plan-card.selected { border-color: var(--g3); background: var(--g5); }
+  .plan-card.featured { border-color: var(--g3); }
+  .plan-badge { font-size: 9px; font-weight: 700; background: var(--g3); color: white; padding: 2px 7px; border-radius: 20px; display: inline-block; margin-bottom: 6px; }
+  .plan-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .plan-price { font-size: 22px; font-weight: 700; color: var(--g2); margin: 4px 0; }
+  .plan-per { font-size: 10px; color: var(--muted); }
+  .plan-items { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.7; text-align: left; }
+  .plan-item { display: flex; gap: 5px; }
+  .plan-check { color: var(--g3); flex-shrink: 0; }
+
+  /* ── TOTAL BAR ── */
+  .total-bar { background: var(--g1); border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin: 16px 0; }
+  .total-label { font-size: 13px; color: var(--g4); }
+  .total-amount { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--white); letter-spacing: 1px; }
+
+  /* ── BUTTONS ── */
+  .btn { width: 100%; padding: 16px; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: all .2s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--g3); color: white; }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--g3); color: var(--g2); margin-top: 10px; }
+  .btn-dark { background: var(--g1); color: white; }
+  .btn-warn { background: var(--warn); color: white; }
+
+  /* ── AGREEMENT ── */
+  .agreement-box { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; max-height: 340px; overflow-y: auto; font-size: 12px; line-height: 1.8; color: var(--muted); margin-bottom: 16px; }
+  .agreement-box h3 { font-size: 13px; font-weight: 700; color: var(--ink); margin: 12px 0 4px; }
+  .agreement-box h3:first-child { margin-top: 0; }
+  .agreement-box p { margin-bottom: 8px; }
+
+  /* ── SIGNATURE PAD ── */
+  .sig-wrap { background: var(--white); border: 2px dashed var(--border); border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; }
+  .sig-wrap.signed { border-color: var(--g3); border-style: solid; }
+  .sig-canvas { display: block; width: 100%; touch-action: none; cursor: crosshair; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .sig-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 13px; color: var(--border); pointer-events: none; text-align: center; line-height: 1.5; }
+  .sig-label.hidden { display: none; }
+  .sig-clear { position: absolute; top: 8px; right: 10px; font-size: 11px; color: var(--muted); cursor: pointer; background: var(--surface); padding: 3px 8px; border-radius: 6px; }
+
+  /* ── CUSTOMER FORM ── */
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: .05em; }
+  .form-input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink); background: var(--white); outline: none; transition: border-color .2s; -webkit-appearance: none; }
+  .form-input:focus { border-color: var(--g3); }
+
+  /* ── PAYMENT ── */
+  .payment-method { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .payment-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .payment-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .square-setup { background: var(--g5); border: 1.5px solid var(--g4); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .square-setup-title { font-size: 13px; font-weight: 700; color: var(--g2); margin-bottom: 6px; }
+  .square-setup-text { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .square-setup-text a { color: var(--g2); font-weight: 600; }
+  .pay-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .pay-row:last-child { border-bottom: none; font-weight: 700; font-size: 16px; color: var(--g2); }
+  .pay-label { color: var(--muted); }
+
+  /* ── REQUEST FORM ── */
+  .request-hero { background: var(--g1); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  .request-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--white); }
+  .request-hero-sub { font-size: 12px; color: var(--g4); margin-top: 4px; }
+  .checkbox-row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all .2s; }
+  .checkbox-row.checked { border-color: var(--g3); background: var(--g5); }
+  .checkbox-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+  .checkbox-row.checked .checkbox-box { background: var(--g3); border-color: var(--g3); color: white; font-size: 13px; }
+  .checkbox-text { font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; }
+  .checkbox-price { font-size: 14px; font-weight: 700; color: var(--g2); }
+
+  /* ── SUCCESS ── */
+  .success-screen { text-align: center; padding: 40px 20px; }
+  .success-icon { width: 72px; height: 72px; background: var(--g3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; }
+  .success-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--g2); letter-spacing: 1px; }
+  .success-sub { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+  .summary-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin: 20px 0; text-align: left; }
+  .summary-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-key { color: var(--muted); }
+  .summary-val { font-weight: 600; color: var(--ink); }
+
+  /* ── STEP INDICATOR ── */
+  .steps { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 20px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all .3s; }
+  .step-dot.active { width: 24px; border-radius: 4px; background: var(--g3); }
+  .step-dot.done { background: var(--g4); }
+
+  /* ── SCROLLBAR ── */
+  .agreement-box::-webkit-scrollbar { width: 4px; }
+  .agreement-box::-webkit-scrollbar-track { background: var(--surface); }
+  .agreement-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .tag { display: inline-block; background: var(--g5); color: var(--g2); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-right: 4px; }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .back-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; margin-bottom: 16px; }
+  .info-box { background: var(--g5); border-left: 3px solid var(--g3); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">GREEN<span>BINS</span> NYC</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('services')">Services</button>
+      <button class="nav-tab" onclick="showTab('customers')">Customers</button>
+      <button class="nav-tab" onclick="showTab('request')">Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SERVICES TAB ══════════════ -->
+<div id="tab-services" class="screen active">
+
+  <!-- STEP 1: Choose Services -->
+  <div id="step-1" class="step-screen">
+    <div class="hero">
+      <div class="hero-title">What can we clean for you today?</div>
+      <div class="hero-sub">Select services below — we'll take care of the rest</div>
+    </div>
+
+    <div class="section-label">One-time services</div>
+
+    <div class="service-card" onclick="toggleService(this,'Bin Cleaning & Sanitizing',15)" data-price="15">
+      <div class="service-top">
+        <div class="service-name">Bin Cleaning & Sanitizing</div>
+        <div class="service-price">$15<span style="font-size:11px;font-weight:400;color:var(--muted)">/bin</span></div>
+      </div>
+      <div class="service-desc">Pressure wash, disinfect & deodorize your trash bins. Removes odors, bacteria, and buildup.</div>
+      <span class="service-badge">Most popular</span>
+    </div>
+
+    <div class="service-card" onclick="toggleService(this,'Rat & Raccoon Deterrent',5)" data-price="5">
+      <div class="service-top">
+        <div class="service-name">Rat & Raccoon Deterrent</div>
+        <div class="service-price">+$5</div>
+      </div>
+      <div class="service-desc">EPA-safe, pet-friendly repellent spray applied directly to your bins. Keeps pests away.</div>
+    </div>
+
+    <div class="service-card" id="window-card" onclick="toggleWindowCard()" data-price="0">
+      <div class="service-top">
+        <div class="service-name">Window Cleaning</div>
+        <div class="service-price" id="window-price-display">from $25</div>
+      </div>
+      <div class="service-desc">Streak-free exterior window cleaning for homes and storefronts.</div>
+      <span class="service-badge" id="window-badge">Tap to add &amp; count windows</span>
+      <div id="window-expander" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px;" onclick="event.stopPropagation()">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">How many windows?</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:12px;padding:10px 14px;margin-bottom:12px;">
+          <button onclick="changeWindows(-1)" style="width:40px;height:40px;border-radius:50%;background:var(--g2);border:none;color:white;font-size:22px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;">−</button>
+          <div style="text-align:center;">
+            <div id="window-count-display" style="font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--g2);line-height:1;">0</div>
+            <div style="font-size:11px;color:var(--muted);">windows</div>
+          </div>
+          <button onclick="changeWindows(1)" style="width:40px;height:40px;border-radius:50%;background:var(--g2);border:none;color:white;font-size:22px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;" id="tier-grid">
+          <div id="tier-1-4" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 4px;text-align:center;background:var(--white);transition:all .2s;">
+            <div style="font-size:10px;color:var(--muted);">1–4 win</div>
+            <div style="font-size:13px;font-weight:700;color:var(--g2);">$25</div>
+          </div>
+          <div id="tier-5-10" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 4px;text-align:center;background:var(--white);transition:all .2s;">
+            <div style="font-size:10px;color:var(--muted);">5–10 win</div>
+            <div style="font-size:13px;font-weight:700;color:var(--g2);">$45</div>
+          </div>
+          <div id="tier-11-16" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 4px;text-align:center;background:var(--white);transition:all .2s;">
+            <div style="font-size:10px;color:var(--muted);">11–16 win</div>
+            <div style="font-size:13px;font-weight:700;color:var(--g2);">$70</div>
+          </div>
+          <div id="tier-17" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 4px;text-align:center;background:var(--white);transition:all .2s;">
+            <div style="font-size:10px;color:var(--muted);">17+ win</div>
+            <div style="font-size:13px;font-weight:700;color:var(--g2);">Quote</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <label style="display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:500;">
+            <input type="checkbox" id="win-interior" onchange="calcWindowPrice()" style="accent-color:var(--g3);width:16px;height:16px;"> Both sides +$10
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:500;">
+            <input type="checkbox" id="win-screens" onchange="toggleScreenCount()" style="accent-color:var(--g3);width:16px;height:16px;"> Screen clean +$5/ea
+          </label>
+        </div>
+        <div id="win-screen-count-row" style="display:none;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Number of screens</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button onclick="changeScreens(-1)" style="width:32px;height:32px;border-radius:50%;background:var(--g2);border:none;color:white;font-size:18px;cursor:pointer;">−</button>
+            <span id="screen-count-display" style="font-size:20px;font-weight:700;color:var(--g2);min-width:28px;text-align:center;">0</span>
+            <button onclick="changeScreens(1)" style="width:32px;height:32px;border-radius:50%;background:var(--g2);border:none;color:white;font-size:18px;cursor:pointer;">+</button>
+          </div>
+        </div>
+        <div id="win-calc-result" style="background:var(--g1);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--g4);">Window cleaning total</span>
+          <span id="win-final-price" style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:white;">$0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="service-card" onclick="toggleService(this,'Address Label Lamination',20)" data-price="20">
+      <div class="service-top">
+        <div class="service-name">Address Label Lamination</div>
+        <div class="service-price">+$20<span style="font-size:11px;font-weight:400;color:var(--muted)">/bin</span></div>
+      </div>
+      <div class="service-desc">Waterproof laminated address label professionally affixed to your bin. Won't peel or fade.</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Monthly subscription plans</div>
+
+    <div class="plans-grid">
+      <div class="plan-card" onclick="selectPlan(this,'Basic Plan',45)">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">$45</div>
+        <div class="plan-per">/month</div>
+        <div class="plan-items">
+          <div class="plan-item"><span class="plan-check">✓</span>2x bin cleans</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Sanitizing</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Rat deterrent</div>
+        </div>
+      </div>
+      <div class="plan-card featured" onclick="selectPlan(this,'Home Plan',75)">
+        <div class="plan-badge">Popular</div>
+        <div class="plan-name">Home</div>
+        <div class="plan-price">$75</div>
+        <div class="plan-per">/month</div>
+        <div class="plan-items">
+          <div class="plan-item"><span class="plan-check">✓</span>2x bin cleans</div>
+          <div class="plan-item"><span class="plan-check">✓</span>1x window clean</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Bag box included</div>
+        </div>
+      </div>
+      <div class="plan-card" onclick="selectPlan(this,'Premium Plan',120)">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">$120</div>
+        <div class="plan-per">/month</div>
+        <div class="plan-items">
+          <div class="plan-item"><span class="plan-check">✓</span>4x bin cleans</div>
+          <div class="plan-item"><span class="plan-check">✓</span>2x window cleans</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Priority scheduling</div>
+        </div>
+      </div>
+      <div class="plan-card" onclick="selectPlan(this,'Business Plan',150)">
+        <div class="plan-name">Business</div>
+        <div class="plan-price">$150+</div>
+        <div class="plan-per">/month</div>
+        <div class="plan-items">
+          <div class="plan-item"><span class="plan-check">✓</span>Weekly service</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Storefront windows</div>
+          <div class="plan-item"><span class="plan-check">✓</span>Custom schedule</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="total-bar">
+      <div>
+        <div class="total-label">Total today</div>
+        <div id="selected-summary" style="font-size:11px;color:var(--g4);margin-top:2px;">Nothing selected yet</div>
+      </div>
+      <div class="total-amount" id="total-display">$0</div>
+    </div>
+
+    <button class="btn btn-primary" id="continue-btn" onclick="goToStep(2)" disabled>Continue to Agreement →</button>
+  </div>
+
+  <!-- STEP 2: Customer Info -->
+  <div id="step-2" class="step-screen" style="display:none">
+    <div class="back-btn" onclick="goToStep(1)">← Back</div>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="section-label">Customer information</div>
+    <div class="form-group">
+      <label class="form-label">Full name</label>
+      <input class="form-input" id="cust-name" type="text" placeholder="John Smith" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address</label>
+      <input class="form-input" id="cust-address" type="text" placeholder="123 Main St, Staten Island, NY" autocomplete="street-address">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone number</label>
+      <input class="form-input" id="cust-phone" type="tel" placeholder="(718) 555-0100" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" id="cust-email" type="email" placeholder="john@email.com" autocomplete="email">
+    </div>
+    <button class="btn btn-primary" onclick="goToStep(3)">Continue to Agreement →</button>
+  </div>
+
+  <!-- STEP 3: Agreement + Signature -->
+  <div id="step-3" class="step-screen" style="display:none">
+    <div class="back-btn" onclick="goToStep(2)">← Back</div>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="section-label">Service agreement</div>
+    <div class="info-box">Please read the agreement below and sign at the bottom.</div>
+
+    <div class="agreement-box" id="agreement-scroll">
+      <h3>GreenBins NYC — Service Agreement</h3>
+      <p>This agreement is between GreenBins NYC ("Provider") and the customer named above ("Customer") for the services selected today.</p>
+
+      <h3>1. Services</h3>
+      <p>GreenBins NYC agrees to perform the selected services at the address provided. One-time services will be performed today. Subscription services will begin on the scheduled start date and recur monthly.</p>
+
+      <h3>2. Payment</h3>
+      <p>Payment is due at the time of service for one-time visits. Monthly subscriptions are billed on the 1st of each month. Accepted methods: Square, Zelle, Venmo, Cash App. If subscription payment is not received by the 5th, service will be paused until payment clears.</p>
+
+      <h3>3. Subscription terms</h3>
+      <p>Subscription plans auto-renew monthly. Either party may cancel with 7 days written notice before the next billing cycle. Unused visits do not roll over. Rates are locked for 6 months from the start date.</p>
+
+      <h3>4. Service conditions</h3>
+      <p>Customer is responsible for ensuring bins and windows are accessible on the scheduled service day. GreenBins NYC is not liable for pre-existing damage to bins, windows, or property. All products used are eco-friendly and pet-safe.</p>
+
+      <h3>5. Liability</h3>
+      <p>GreenBins NYC carries general liability insurance. We are not responsible for damage caused by pre-existing conditions, inaccessible areas, or hazardous materials found inside bins.</p>
+
+      <h3>6. Agreement</h3>
+      <p>By signing below, the Customer confirms they have read and agreed to these terms and authorizes GreenBins NYC to perform the selected services at the price stated.</p>
+    </div>
+
+    <div class="section-label">Customer signature</div>
+    <div class="sig-wrap" id="sig-wrap">
+      <canvas class="sig-canvas" id="sig-canvas" height="140"></canvas>
+      <div class="sig-label" id="sig-label">Sign here with your finger</div>
+      <div class="sig-clear" onclick="clearSig()">Clear</div>
+    </div>
+
+    <button class="btn btn-primary" id="agree-btn" onclick="goToStep(4)" disabled>Agree & Continue to Payment →</button>
+  </div>
+
+  <!-- STEP 4: Payment -->
+  <div id="step-4" class="step-screen" style="display:none">
+    <div class="back-btn" onclick="goToStep(3)">← Back</div>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+    </div>
+
+    <div class="section-label">Order summary</div>
+    <div class="payment-method">
+      <div id="order-summary-lines"></div>
+    </div>
+
+    <div class="square-setup">
+      <div class="square-setup-title">💳 Square Payment</div>
+      <div class="square-setup-text">
+        To accept card payments, you need a free Square account.<br>
+        1. Sign up at <a href="https://squareup.com" target="_blank">squareup.com</a> (free)<br>
+        2. Get your free card reader — it arrives in a few days<br>
+        3. Or use Square's <strong>Tap to Pay</strong> on your iPhone (no reader needed)<br><br>
+        <strong>Once set up:</strong> Open your Square app → New Sale → enter the amount → have customer tap or swipe.
+      </div>
+    </div>
+
+    <div class="section-label">Pay now via</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-dark" onclick="openSquare()" style="padding:14px;font-size:13px;">Open Square App</button>
+      <button class="btn btn-outline" onclick="showZelle()" style="padding:14px;font-size:13px;margin:0;">Zelle / Venmo</button>
+    </div>
+
+    <div id="zelle-info" style="display:none" class="info-box">
+      Send payment to: <strong>(929) 000-0000</strong> or <strong>greenbinsnyc@gmail.com</strong><br>
+      Include your name in the memo.
+    </div>
+
+    <button class="btn btn-primary" onclick="completeBooking()">Mark as Paid & Complete ✓</button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="step-success" class="step-screen" style="display:none">
+    <div class="success-screen">
+      <div class="success-icon">✓</div>
+      <div class="success-title">You're all set!</div>
+      <div class="success-sub">Thank you for choosing GreenBins NYC.<br>We'll take great care of you.</div>
+      <div class="summary-card" id="final-summary"></div>
+      <button class="btn btn-primary" onclick="resetApp()" style="margin-top:10px;">New Customer →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ REQUEST TAB ══════════════ -->
+<div id="tab-request" class="screen">
+  <div class="request-hero">
+    <div class="request-hero-title">Request a Service</div>
+    <div class="request-hero-sub">Fill this out and we'll confirm your booking</div>
+  </div>
+
+  <div class="section-label">Your information</div>
+  <div class="form-group">
+    <label class="form-label">Full name</label>
+    <input class="form-input" id="req-name" type="text" placeholder="John Smith">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Address</label>
+    <input class="form-input" id="req-address" type="text" placeholder="123 Main St, Staten Island, NY">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Phone number</label>
+    <input class="form-input" id="req-phone" type="tel" placeholder="(718) 555-0100">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Preferred date</label>
+    <input class="form-input" id="req-date" type="date">
+  </div>
+
+  <div class="section-label">Services requested</div>
+  <div class="checkbox-row" onclick="toggleCheck(this)">
+    <div class="checkbox-box"></div>
+    <div class="checkbox-text">Bin Cleaning & Sanitizing</div>
+    <div class="checkbox-price">$15/bin</div>
+  </div>
+  <div class="checkbox-row" onclick="toggleCheck(this)">
+    <div class="checkbox-box"></div>
+    <div class="checkbox-text">Rat & Raccoon Deterrent</div>
+    <div class="checkbox-price">+$5</div>
+  </div>
+  <div class="checkbox-row" onclick="toggleCheck(this)">
+    <div class="checkbox-box"></div>
+    <div class="checkbox-text">Window Cleaning</div>
+    <div class="checkbox-price">from $25</div>
+  </div>
+  <div class="checkbox-row" onclick="toggleCheck(this)">
+    <div class="checkbox-box"></div>
+    <div class="checkbox-text">Address Label Lamination</div>
+    <div class="checkbox-price">+$20</div>
+  </div>
+  <div class="checkbox-row" onclick="toggleCheck(this)">
+    <div class="checkbox-box"></div>
+    <div class="checkbox-text">Monthly Subscription</div>
+    <div class="checkbox-price">from $45</div>
+  </div>
+
+  <div class="form-group" style="margin-top:16px;">
+    <label class="form-label">Additional notes</label>
+    <textarea class="form-input" id="req-notes" rows="3" placeholder="Anything we should know..." style="resize:none;line-height:1.6;"></textarea>
+  </div>
+
+  <div id="req-success" style="display:none" class="info-box" style="color:var(--g2)">
+    ✓ Request submitted! We'll contact you within 24 hours to confirm.
+  </div>
+
+  <button class="btn btn-primary" onclick="submitRequest()">Submit Request →</button>
+  <div style="height:30px;"></div>
+</div>
+
+<script>
+// ── STATE ──
+let selectedServices = [];
+let selectedPlan = null;
+let hasSig = false;
+
+// ── TAB SWITCHING ──
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── WINDOW CLEANING COUNTER ──
+let windowCount = 0;
+let screenCount = 0;
+
+function toggleWindowCard() {
+  const card = document.getElementById('window-card');
+  const expander = document.getElementById('window-expander');
+  const isSelected = card.classList.contains('selected');
+  if (isSelected) {
+    card.classList.remove('selected');
+    expander.style.display = 'none';
+    windowCount = 0; screenCount = 0;
+    document.getElementById('window-count-display').textContent = '0';
+    document.getElementById('screen-count-display').textContent = '0';
+    document.getElementById('win-interior').checked = false;
+    document.getElementById('win-screens').checked = false;
+    document.getElementById('win-screen-count-row').style.display = 'none';
+    document.getElementById('window-price-display').textContent = 'from $25';
+    document.getElementById('window-badge').textContent = 'Tap to add & count windows';
+    card.dataset.price = 0;
+    updateTotal();
+  } else {
+    card.classList.add('selected');
+    expander.style.display = 'block';
+    calcWindowPrice();
+  }
+}
+
+function calcWindowPrice() {
+  let base = 0;
+  if (windowCount === 0) base = 0;
+  else if (windowCount <= 4) base = 25;
+  else if (windowCount <= 10) base = 45;
+  else if (windowCount <= 16) base = 70;
+  else base = 95;
+
+  const interior = document.getElementById('win-interior').checked ? 10 : 0;
+  const screens = document.getElementById('win-screens').checked ? screenCount * 5 : 0;
+  const total = base + interior + screens;
+
+  // Highlight active tier
+  ['tier-1-4','tier-5-10','tier-11-16','tier-17'].forEach(id => {
+    document.getElementById(id).style.background = 'var(--white)';
+    document.getElementById(id).style.borderColor = 'var(--border)';
+  });
+  if (windowCount >= 1 && windowCount <= 4) highlight('tier-1-4');
+  else if (windowCount >= 5 && windowCount <= 10) highlight('tier-5-10');
+  else if (windowCount >= 11 && windowCount <= 16) highlight('tier-11-16');
+  else if (windowCount >= 17) highlight('tier-17');
+
+  const priceLabel = windowCount === 0 ? 'from $25' : (windowCount > 16 ? 'Custom quote' : '$' + total);
+  document.getElementById('window-price-display').textContent = priceLabel;
+  document.getElementById('win-final-price').textContent = windowCount === 0 ? '$0' : (windowCount > 16 ? 'Quote' : '$' + total);
+  document.getElementById('window-badge').textContent = windowCount > 0 ? windowCount + ' windows selected' : 'Tap to add & count windows';
+
+  const card = document.getElementById('window-card');
+  card.dataset.price = total;
+  updateTotal();
+}
+
+function highlight(id) {
+  document.getElementById(id).style.background = 'var(--g5)';
+  document.getElementById(id).style.borderColor = 'var(--g3)';
+}
+
+function changeWindows(delta) {
+  windowCount = Math.max(0, windowCount + delta);
+  document.getElementById('window-count-display').textContent = windowCount;
+  calcWindowPrice();
+}
+
+function toggleScreenCount() {
+  const show = document.getElementById('win-screens').checked;
+  document.getElementById('win-screen-count-row').style.display = show ? 'block' : 'none';
+  if (!show) { screenCount = 0; document.getElementById('screen-count-display').textContent = '0'; }
+  calcWindowPrice();
+}
+
+function changeScreens(delta) {
+  screenCount = Math.max(0, screenCount + delta);
+  document.getElementById('screen-count-display').textContent = screenCount;
+  calcWindowPrice();
+}
+
+
+function toggleService(el, name, price) {
+  // Deselect any plan when picking one-time
+  if (selectedPlan) {
+    document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('selected'));
+    selectedPlan = null;
+  }
+  el.classList.toggle('selected');
+  const idx = selectedServices.findIndex(s => s.name === name);
+  if (idx > -1) selectedServices.splice(idx, 1);
+  else selectedServices.push({ name, price });
+  updateTotal();
+}
+
+function selectPlan(el, name, price) {
+  // Deselect one-time services
+  selectedServices = [];
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+  if (selectedPlan && selectedPlan.name === name) {
+    el.classList.remove('selected');
+    selectedPlan = null;
+  } else {
+    document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPlan = { name, price };
+  }
+  updateTotal();
+}
+
+function updateTotal() {
+  const serviceTotal = selectedServices.reduce((s, x) => s + x.price, 0);
+  const planTotal = selectedPlan ? selectedPlan.price : 0;
+  const windowTotal = parseInt(document.getElementById('window-card').dataset.price) || 0;
+  const total = serviceTotal + planTotal + windowTotal;
+
+  document.getElementById('total-display').textContent = '$' + total;
+
+  let items = [...selectedServices.map(s => s.name)];
+  if (document.getElementById('window-card').classList.contains('selected') && windowTotal > 0)
+    items.push('Window Cleaning ($' + windowTotal + ')');
+  if (selectedPlan) items.push(selectedPlan.name);
+  document.getElementById('selected-summary').textContent = items.length ? items.join(' · ') : 'Nothing selected yet';
+
+  const btn = document.getElementById('continue-btn');
+  const hasWindow = document.getElementById('window-card').classList.contains('selected');
+  btn.disabled = items.length === 0 && !hasWindow;
+}
+
+// ── STEP NAVIGATION ──
+function goToStep(n) {
+  document.querySelectorAll('.step-screen').forEach(s => s.style.display = 'none');
+
+  if (n === 2) {
+    const total = selectedServices.reduce((s,x)=>s+x.price,0) + (selectedPlan?selectedPlan.price:0);
+    if (total === 0 && !selectedPlan) return;
+    document.getElementById('step-2').style.display = 'block';
+  } else if (n === 3) {
+    const name = document.getElementById('cust-name').value.trim();
+    const phone = document.getElementById('cust-phone').value.trim();
+    if (!name || !phone) { alert('Please enter your name and phone number.'); document.getElementById('step-2').style.display='block'; return; }
+    document.getElementById('step-3').style.display = 'block';
+    // Init signature pad AFTER step is visible so canvas has correct dimensions
+    setTimeout(initSigPad, 80);
+  } else if (n === 4) {
+    if (!hasSig) { alert('Please sign the agreement before continuing.'); document.getElementById('step-3').style.display='block'; return; }
+    buildOrderSummary();
+    document.getElementById('step-4').style.display = 'block';
+  } else {
+    document.getElementById('step-' + n).style.display = 'block';
+  }
+  window.scrollTo(0, 0);
+}
+
+function buildOrderSummary() {
+  const lines = document.getElementById('order-summary-lines');
+  let html = '';
+  let all = [...selectedServices];
+  if (selectedPlan) all.push(selectedPlan);
+  all.forEach(s => {
+    html += `<div class="pay-row"><span class="pay-label">${s.name}</span><span>$${s.price}</span></div>`;
+  });
+  const windowTotal = parseInt(document.getElementById('window-card').dataset.price) || 0;
+  if (document.getElementById('window-card').classList.contains('selected') && windowTotal > 0) {
+    html += `<div class="pay-row"><span class="pay-label">Window Cleaning (${windowCount} windows)</span><span>$${windowTotal}</span></div>`;
+  }
+  const total = all.reduce((s,x)=>s+x.price,0) + windowTotal;
+  html += `<div class="pay-row"><span class="pay-label">Total</span><span>$${total}</span></div>`;
+  lines.innerHTML = html;
+}
+
+// ── SIGNATURE PAD (iOS Safari-compatible) ──
+let sigCtx = null;
+let sigDrawing = false, sigLastX = 0, sigLastY = 0;
+
+function initSigPad() {
+  const canvas = document.getElementById('sig-canvas');
+  const wrap = document.getElementById('sig-wrap');
+
+  // Get actual displayed size
+  const rect = wrap.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const displayWidth = rect.width;
+  const displayHeight = 160;
+
+  // Set the canvas internal size scaled for retina
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  // CSS size stays normal
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+
+  sigCtx = canvas.getContext('2d');
+  sigCtx.scale(dpr, dpr);
+  sigCtx.clearRect(0, 0, displayWidth, displayHeight);
+  sigCtx.strokeStyle = '#0F6E56';
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+
+  // Clean re-attach of listeners (iOS Safari needs non-passive listeners for touch)
+  const newCanvas = canvas.cloneNode(false);
+  newCanvas.style.width = displayWidth + 'px';
+  newCanvas.style.height = displayHeight + 'px';
+  newCanvas.width = displayWidth * dpr;
+  newCanvas.height = displayHeight * dpr;
+  canvas.parentNode.replaceChild(newCanvas, canvas);
+
+  const c = document.getElementById('sig-canvas');
+  sigCtx = c.getContext('2d');
+  sigCtx.scale(dpr, dpr);
+  sigCtx.strokeStyle = '#0F6E56';
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+
+  function getPos(e) {
+    const r = c.getBoundingClientRect();
+    let x, y;
+    if (e.touches && e.touches.length > 0) {
+      x = e.touches[0].clientX - r.left;
+      y = e.touches[0].clientY - r.top;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      x = e.changedTouches[0].clientX - r.left;
+      y = e.changedTouches[0].clientY - r.top;
+    } else {
+      x = e.clientX - r.left;
+      y = e.clientY - r.top;
+    }
+    return [x, y];
+  }
+
+  function startDraw(e) {
+    if (e.cancelable) e.preventDefault();
+    sigDrawing = true;
+    [sigLastX, sigLastY] = getPos(e);
+    // Draw a single dot so a tap registers
+    sigCtx.beginPath();
+    sigCtx.arc(sigLastX, sigLastY, 1.2, 0, Math.PI * 2);
+    sigCtx.fillStyle = '#0F6E56';
+    sigCtx.fill();
+    document.getElementById('sig-label').classList.add('hidden');
+    hasSig = true;
+    document.getElementById('agree-btn').disabled = false;
+    document.getElementById('sig-wrap').classList.add('signed');
+  }
+
+  function draw(e) {
+    if (!sigDrawing) return;
+    if (e.cancelable) e.preventDefault();
+    const [x, y] = getPos(e);
+    sigCtx.beginPath();
+    sigCtx.moveTo(sigLastX, sigLastY);
+    sigCtx.lineTo(x, y);
+    sigCtx.stroke();
+    sigLastX = x;
+    sigLastY = y;
+  }
+
+  function endDraw() { sigDrawing = false; }
+
+  // Touch events with passive: false so preventDefault works on iOS
+  c.addEventListener('touchstart', startDraw, { passive: false });
+  c.addEventListener('touchmove', draw, { passive: false });
+  c.addEventListener('touchend', endDraw, { passive: false });
+  c.addEventListener('touchcancel', endDraw, { passive: false });
+
+  // Mouse fallback for desktop
+  c.addEventListener('mousedown', startDraw);
+  c.addEventListener('mousemove', draw);
+  c.addEventListener('mouseup', endDraw);
+  c.addEventListener('mouseleave', endDraw);
+}
+
+function clearSig() {
+  const canvas = document.getElementById('sig-canvas');
+  const dpr = window.devicePixelRatio || 1;
+  if (sigCtx) sigCtx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  hasSig = false;
+  document.getElementById('agree-btn').disabled = true;
+  document.getElementById('sig-wrap').classList.remove('signed');
+  document.getElementById('sig-label').classList.remove('hidden');
+}
+
+function getSigDataURL() {
+  const canvas = document.getElementById('sig-canvas');
+  return canvas.toDataURL('image/png');
+}
+
+// ── PAYMENT ──
+function openSquare() {
+  // Deep link to Square POS app
+  window.location.href = 'square-commerce-v1://payment/create?amount=' + getTotal() + '&currency_code=USD&notes=GreenBins+NYC';
+  setTimeout(() => alert('Square app not found. Please open your Square app manually and enter $' + getTotal()), 1500);
+}
+
+function showZelle() {
+  const el = document.getElementById('zelle-info');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function getTotal() {
+  const windowTotal = parseInt(document.getElementById('window-card').dataset.price) || 0;
+  return [...selectedServices, ...(selectedPlan ? [selectedPlan] : [])].reduce((s,x)=>s+x.price,0) + windowTotal;
+}
+
+// ── CREDENTIALS ──
+const EMAILJS_SERVICE  = 'service_tlcv6oa';
+const EMAILJS_TEMPLATE = 'template_dqvc8dy';
+const EMAILJS_KEY      = 'TGIaAOzswm8iR2oca';
+const SHEETS_URL       = 'https://script.google.com/macros/s/AKfycbyOFvV7dPhhVc-V976OTHFtaSbILvKsYbVa12IIeYrqyGczNA2jrSiTEPCkM_up8ABg-g/exec';
+
+// ── LOCAL STORAGE ──
+function getCustomers() {
+  try { return JSON.parse(localStorage.getItem('gb_customers') || '[]'); } catch(e) { return []; }
+}
+function saveCustomer(record) {
+  const all = getCustomers();
+  record.id = Date.now();
+  all.unshift(record);
+  localStorage.setItem('gb_customers', JSON.stringify(all));
+}
+
+function completeBooking() {
+  const name    = document.getElementById('cust-name').value;
+  const address = document.getElementById('cust-address').value;
+  const phone   = document.getElementById('cust-phone').value;
+  const email   = document.getElementById('cust-email').value;
+  const date    = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  let all = [...selectedServices];
+  if (selectedPlan) all.push(selectedPlan);
+  const windowTotal = parseInt(document.getElementById('window-card').dataset.price) || 0;
+  if (document.getElementById('window-card').classList.contains('selected') && windowTotal > 0)
+    all.push({ name: `Window Cleaning (${windowCount} windows)`, price: windowTotal });
+  const total = all.reduce((s,x) => s + x.price, 0);
+  const servicesList = all.map(s => s.name).join(', ');
+  const planName = selectedPlan ? selectedPlan.name : (all.length ? all[0].name : 'One-time');
+
+  // 1️⃣ Save locally
+  const record = { name, address, phone, email, services: servicesList, plan: planName, total, date };
+  saveCustomer(record);
+
+  // 2️⃣ Send to Google Sheets
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, address, phone, email, plan: planName, total, date, notes: servicesList })
+  }).catch(() => {});
+
+  // 3️⃣ Email receipt to customer
+  if (email) {
+    emailjs.init(EMAILJS_KEY);
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      customer_name:  name,
+      customer_email: email,
+      services:       all.map(s => `• ${s.name}  $${s.price}`).join('\n'),
+      total:          '$' + total,
+      date:           date,
+      address:        address,
+      phone:          phone
+    }).catch(() => {});
+  }
+
+  // 4️⃣ Email signed agreement copy to GreenBins
+  emailjs.init(EMAILJS_KEY);
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+    customer_name:  'SIGNED AGREEMENT — ' + name,
+    customer_email: 'greenbinsnyc@gmail.com',
+    services:       all.map(s => `• ${s.name}  $${s.price}`).join('\n'),
+    total:          '$' + total,
+    date:           date,
+    address:        address,
+    phone:          phone + (email ? '\nEmail: ' + email : '') + '\n\nSignature captured on device at time of signing.'
+  }).catch(() => {});
+
+  // Show success screen
+  let html = `
+    <div class="summary-row"><span class="summary-key">Customer</span><span class="summary-val">${name}</span></div>
+    <div class="summary-row"><span class="summary-key">Address</span><span class="summary-val">${address||'—'}</span></div>
+    <div class="summary-row"><span class="summary-key">Phone</span><span class="summary-val">${phone}</span></div>
+    <div class="summary-row"><span class="summary-key">Email</span><span class="summary-val">${email||'—'}</span></div>
+    <div class="summary-row"><span class="summary-key">Services</span><span class="summary-val">${servicesList}</span></div>
+    <div class="summary-row"><span class="summary-key">Total paid</span><span class="summary-val" style="color:var(--g2)">$${total}</span></div>
+    <div class="summary-row"><span class="summary-key">Date</span><span class="summary-val">${date}</span></div>
+  `;
+  if (email) html += `<div class="summary-row"><span class="summary-key">Receipt</span><span class="summary-val" style="color:var(--g3)">Emailed to customer ✓</span></div>`;
+  html += `<div class="summary-row"><span class="summary-key">Agreement</span><span class="summary-val" style="color:var(--g3)">Signed copy emailed to GreenBins ✓</span></div>`;
+  html += `<div class="summary-row"><span class="summary-key">Saved</span><span class="summary-val" style="color:var(--g3)">App + Google Sheets ✓</span></div>`;
+
+  document.getElementById('final-summary').innerHTML = html;
+  document.querySelectorAll('.step-screen').forEach(s => s.style.display='none');
+  document.getElementById('step-success').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function resetApp() {
+  selectedServices = [];
+  selectedPlan = null;
+  hasSig = false;
+  windowCount = 0; screenCount = 0;
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('window-expander').style.display = 'none';
+  document.getElementById('window-count-display').textContent = '0';
+  document.getElementById('screen-count-display').textContent = '0';
+  document.getElementById('win-interior').checked = false;
+  document.getElementById('win-screens').checked = false;
+  document.getElementById('win-screen-count-row').style.display = 'none';
+  document.getElementById('window-price-display').textContent = 'from $25';
+  document.getElementById('window-card').dataset.price = 0;
+  document.getElementById('cust-name').value='';
+  document.getElementById('cust-address').value='';
+  document.getElementById('cust-phone').value='';
+  document.getElementById('cust-email').value='';
+  clearSig();
+  updateTotal();
+  document.querySelectorAll('.step-screen').forEach(s=>s.style.display='none');
+  document.getElementById('step-1').style.display='block';
+  window.scrollTo(0,0);
+}
+
+// ── REQUEST FORM ──
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const box = el.querySelector('.checkbox-box');
+  box.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function submitRequest() {
+  const name = document.getElementById('req-name').value.trim();
+  const phone = document.getElementById('req-phone').value.trim();
+  if (!name || !phone) { alert('Please enter your name and phone number.'); return; }
+  document.getElementById('req-success').style.display = 'block';
+  document.getElementById('req-success').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+<!-- ══════════════ CUSTOMERS TAB ══════════════ -->
+<div id="tab-customers" class="screen">
+  <div class="hero">
+    <div class="hero-title">Customer History</div>
+    <div class="hero-sub">All bookings saved on this device</div>
+  </div>
+  <div id="customers-list"></div>
+  <div id="customers-empty" style="text-align:center;padding:40px 20px;">
+    <div style="font-size:40px;margin-bottom:12px;">📋</div>
+    <div style="font-size:15px;font-weight:600;color:var(--ink);">No customers yet</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:6px;">Complete a booking and it will appear here</div>
+  </div>
+  <div style="height:20px;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+function renderCustomers() {
+  const all = getCustomers();
+  const list = document.getElementById('customers-list');
+  const empty = document.getElementById('customers-empty');
+  if (!all.length) { list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = all.map(c => `
+    <div style="background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div style="font-size:15px;font-weight:700;color:var(--ink);">${c.name}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g2);">$${c.total}</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:3px;">${c.address||'No address'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${c.phone}${c.email ? ' · '+c.email : ''}</div>
+      <div style="font-size:12px;color:var(--g2);font-weight:600;margin-bottom:3px;">${c.services}</div>
+      <div style="font-size:11px;color:var(--muted);">${c.date}</div>
+    </div>
+  `).join('');
+}
+
+// Override showTab to render customers when that tab opens
+const _origShowTab = showTab;
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'customers') renderCustomers();
+}
+</script>
+</body>
+</html>
